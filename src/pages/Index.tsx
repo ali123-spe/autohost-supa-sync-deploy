@@ -1,7 +1,7 @@
 
 import React from 'react';
 import ConversationUI from '@/components/ConversationUI';
-import { GitHubLogoIcon } from '@radix-ui/react-icons';
+import { Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -15,7 +15,7 @@ const Index = () => {
         </div>
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="text-xs">
-            <GitHubLogoIcon className="mr-1 h-3 w-3" /> Connect GitHub
+            <Github className="mr-1 h-3 w-3" /> Connect GitHub
           </Button>
           <Button variant="outline" size="sm" className="text-xs">
             Connect Supabase
