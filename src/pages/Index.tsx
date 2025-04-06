@@ -5,6 +5,7 @@ import SettingsForm from '@/components/SettingsForm';
 import { Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import DiagnosticInfo from '@/components/DiagnosticInfo';
 
 const Index = () => {
   return (
@@ -38,6 +39,9 @@ const Index = () => {
           <SettingsForm />
         </TabsContent>
       </Tabs>
+      
+      {/* Add diagnostic information */}
+      <DiagnosticInfo />
       
       <footer className="mt-6 text-center text-xs text-muted-foreground">
         <p>JARVIS Virtual Assistant - Prototype v0.2</p>
