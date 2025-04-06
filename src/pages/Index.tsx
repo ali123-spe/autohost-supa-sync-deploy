@@ -1,6 +1,7 @@
 
 import React from 'react';
 import ConversationUI from '@/components/ConversationUI';
+import SettingsForm from '@/components/SettingsForm';
 import { Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -34,43 +35,12 @@ const Index = () => {
         </TabsContent>
         
         <TabsContent value="settings" className="flex-1">
-          <div className="max-w-4xl mx-auto w-full space-y-6">
-            <div className="bg-black/20 backdrop-blur-sm p-6 rounded-lg border border-jarvis-navy">
-              <h2 className="text-xl font-bold mb-4">System Configuration</h2>
-              <p className="text-muted-foreground mb-4">
-                JARVIS is currently running in prototype mode with limited functionality.
-                Connect to Supabase and GitHub to enable full capabilities.
-              </p>
-              
-              <div className="space-y-4">
-                <div className="p-4 border border-dashed border-jarvis-navy rounded-md">
-                  <h3 className="font-medium mb-2">Voice Settings</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Voice input/output requires API keys and is not fully implemented in this prototype.
-                  </p>
-                </div>
-                
-                <div className="p-4 border border-dashed border-jarvis-navy rounded-md">
-                  <h3 className="font-medium mb-2">NLP Configuration</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Advanced natural language processing capabilities will be enabled after connecting to backend services.
-                  </p>
-                </div>
-                
-                <div className="p-4 border border-dashed border-jarvis-navy rounded-md">
-                  <h3 className="font-medium mb-2">Memory System</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Long-term memory and context management requires Supabase integration.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <SettingsForm />
         </TabsContent>
       </Tabs>
       
       <footer className="mt-6 text-center text-xs text-muted-foreground">
-        <p>JARVIS Virtual Assistant - Prototype v0.1</p>
+        <p>JARVIS Virtual Assistant - Prototype v0.2</p>
       </footer>
     </div>
   );

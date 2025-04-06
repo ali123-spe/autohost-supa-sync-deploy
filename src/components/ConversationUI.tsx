@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, MicOff, Volume2 } from "lucide-react";
+import { Send, Mic, MicOff, Volume2, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -9,6 +9,16 @@ import { cn } from "@/lib/utils";
 import JarvisAvatar from './JarvisAvatar';
 import { useChatStore } from '@/stores/chat-store';
 import { useProcessMessage } from '@/hooks/use-process-message';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Message {
   id: string;
@@ -18,12 +28,13 @@ interface Message {
 }
 
 const ConversationUI: React.FC = () => {
-  const { messages, addMessage } = useChatStore();
+  const { messages, addMessage, deleteMessage, clearMessages } = useChatStore();
   const { processMessage, isProcessing } = useProcessMessage();
   
   const [input, setInput] = useState<string>('');
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -96,8 +107,21 @@ const ConversationUI: React.FC = () => {
     }
   };
 
+  const handleClearConversation = () => {
+    setIsAlertOpen(true);
+  };
+
+  const confirmClearConversation = () => {
+    clearMessages();
+    setIsAlertOpen(false);
+    toast({
+      title: "Conversation cleared",
+      description: "All messages have been deleted",
+    });
+  };
+
   return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto">
+    <div className="flex flex-col h-full max-w-4xl mx-auto w-full">
       <div className="py-6 text-center">
         <JarvisAvatar 
           isActive={true}
@@ -109,8 +133,19 @@ const ConversationUI: React.FC = () => {
         <p className="text-muted-foreground">Your AI Assistant</p>
       </div>
       
-      <Card className="flex-1 overflow-hidden flex flex-col bg-black/20 backdrop-blur-sm border-jarvis-navy">
-        <div className="flex-1 overflow-y-auto p-4">
+      <Card className="flex-1 overflow-hidden flex flex-col bg-black/20 backdrop-blur-sm border-jarvis-navy relative">
+        {messages.length > 0 && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="absolute right-4 top-4 text-xs flex gap-1 items-center"
+            onClick={handleClearConversation}
+          >
+            <Trash2 className="h-3 w-3" /> Clear conversation
+          </Button>
+        )}
+        
+        <div className="flex-1 overflow-y-auto p-4 pt-12">
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center text-center">
               <div className="space-y-2">
@@ -126,11 +161,19 @@ const ConversationUI: React.FC = () => {
                 <div
                   key={message.id}
                   className={cn(
-                    "message-bubble",
+                    "message-bubble group relative",
                     message.role === "user" ? "user" : "assistant"
                   )}
                 >
                   {message.content}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 h-6 w-6"
+                    onClick={() => deleteMessage(message.id)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
                 </div>
               ))}
               <div ref={messagesEndRef} />
@@ -171,6 +214,27 @@ const ConversationUI: React.FC = () => {
           </div>
         </form>
       </Card>
+      
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent className="bg-jarvis-navy border-jarvis-teal">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear conversation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to clear the entire conversation history?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              className="bg-red-600 hover:bg-red-700"
+              onClick={confirmClearConversation}
+            >
+              Clear
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
