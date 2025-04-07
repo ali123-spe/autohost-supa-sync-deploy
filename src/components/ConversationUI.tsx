@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, MicOff, Volume2, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -52,7 +51,6 @@ const ConversationUI: React.FC = () => {
     
     if (!input.trim()) return;
     
-    // Add user message
     const userMessage = {
       id: Date.now().toString(),
       content: input,
@@ -66,7 +64,6 @@ const ConversationUI: React.FC = () => {
     try {
       const response = await processMessage(input);
       
-      // Add assistant response
       const assistantMessage = {
         id: (Date.now() + 1).toString(),
         content: response || "I'm sorry, I couldn't process your request.",
@@ -75,7 +72,6 @@ const ConversationUI: React.FC = () => {
       };
       
       addMessage(assistantMessage);
-      // Here you would trigger text-to-speech for the response
       setIsSpeaking(true);
       setTimeout(() => setIsSpeaking(false), 3000);
       
@@ -92,14 +88,12 @@ const ConversationUI: React.FC = () => {
   const toggleListening = () => {
     if (isListening) {
       setIsListening(false);
-      // Stop speech recognition here
     } else {
       setIsListening(true);
       toast({
         title: "Listening",
         description: "Voice input is not fully implemented in this version",
       });
-      // Start speech recognition here
       setTimeout(() => {
         setIsListening(false);
         inputRef.current?.focus();
@@ -150,9 +144,18 @@ const ConversationUI: React.FC = () => {
             <div className="h-full flex items-center justify-center text-center">
               <div className="space-y-2">
                 <h3 className="text-lg font-medium">Welcome to JARVIS</h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground mb-4">
                   How can I assist you today?
                 </p>
+                <div className="space-y-2 text-sm text-left bg-black/20 p-4 rounded-md mx-auto max-w-md">
+                  <p className="font-medium">Try these task commands:</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>"Add task Buy groceries"</li>
+                    <li>"List tasks"</li>
+                    <li>"Complete task 1"</li>
+                    <li>"Help"</li>
+                  </ul>
+                </div>
               </div>
             </div>
           ) : (
@@ -199,7 +202,7 @@ const ConversationUI: React.FC = () => {
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
+              placeholder="Type your message or task command..."
               className="flex-1 bg-jarvis-navy/50 border-jarvis-navy focus-visible:ring-jarvis-teal"
               disabled={isListening || isProcessing}
             />
