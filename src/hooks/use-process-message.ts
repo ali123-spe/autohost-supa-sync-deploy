@@ -12,6 +12,25 @@ interface Task {
 // In-memory task storage (in a real app, this would come from a database)
 const tasks: Task[] = [];
 
+// Knowledge base for common questions
+const knowledgeBase = {
+  'what is javascript': 'JavaScript is a programming language that is one of the core technologies of the World Wide Web. It enables interactive web pages and is an essential part of web applications.',
+  'what is react': 'React is a free and open-source front-end JavaScript library for building user interfaces based on components. It is maintained by Meta and a community of individual developers and companies.',
+  'who is albert einstein': 'Albert Einstein was a German-born theoretical physicist, widely acknowledged to be one of the greatest and most influential physicists of all time. He is known for developing the theory of relativity and contributing to the development of quantum mechanics.',
+  'what is artificial intelligence': 'Artificial Intelligence (AI) refers to systems or machines that mimic human intelligence to perform tasks and can iteratively improve themselves based on the information they collect.',
+  'what is the capital of france': 'The capital of France is Paris.',
+  'what is the capital of japan': 'The capital of Japan is Tokyo.',
+  'what is the capital of australia': 'The capital of Australia is Canberra.',
+  'how tall is mount everest': 'Mount Everest is 8,848.86 meters (29,031.7 feet) tall.',
+  'when was the declaration of independence signed': 'The Declaration of Independence was signed on July 4, 1776.',
+  'who wrote hamlet': 'Hamlet was written by William Shakespeare.',
+  'what is photosynthesis': 'Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize nutrients from carbon dioxide and water.',
+  'what is the largest ocean': 'The Pacific Ocean is the largest and deepest ocean on Earth.',
+  'what is the speed of light': 'The speed of light in a vacuum is 299,792,458 meters per second (approximately 186,282 miles per second).',
+  'what is the periodic table': 'The periodic table is a tabular display of chemical elements organized by atomic number, electron configuration, and recurring chemical properties.',
+  'what is climate change': 'Climate change refers to long-term shifts in temperatures and weather patterns, mainly caused by human activities, particularly the burning of fossil fuels.',
+};
+
 export function useProcessMessage() {
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -24,7 +43,7 @@ export function useProcessMessage() {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      const lowercaseMessage = message.toLowerCase();
+      const lowercaseMessage = message.toLowerCase().trim();
       
       // Task management logic
       if (lowercaseMessage.includes('add task') || lowercaseMessage.includes('create task')) {
@@ -78,26 +97,40 @@ export function useProcessMessage() {
           }
         }
       }
-      // General conversational responses as before
-      else if (lowercaseMessage.includes('hello') || lowercaseMessage.includes('hi')) {
-        return 'Hello! How can I assist you today?';
-      } else if (lowercaseMessage.includes('how are you')) {
-        return 'I am functioning optimally. Thank you for asking.';
-      } else if (lowercaseMessage.includes('weather')) {
-        return 'I currently don\'t have access to real-time weather data, but I can help you with many other requests.';
-      } else if (lowercaseMessage.includes('time')) {
-        const now = new Date();
-        return `The current time is ${now.toLocaleTimeString()}.`;
-      } else if (lowercaseMessage.includes('name')) {
-        return 'I am JARVIS, your virtual assistant.';
-      } else if (lowercaseMessage.includes('help')) {
-        return `I can help you with various tasks. Try these commands:
+      // Check if the question matches any knowledge base entry
+      else {
+        // Check for exact matches in knowledge base
+        for (const [question, answer] of Object.entries(knowledgeBase)) {
+          if (lowercaseMessage.includes(question)) {
+            return answer;
+          }
+        }
+        
+        // General conversational responses
+        if (lowercaseMessage.includes('hello') || lowercaseMessage.includes('hi')) {
+          return 'Hello! How can I assist you today? Feel free to ask me any questions or request help with your tasks.';
+        } else if (lowercaseMessage.includes('how are you')) {
+          return 'I am functioning optimally. Thank you for asking. How can I assist you today?';
+        } else if (lowercaseMessage.includes('weather')) {
+          return 'I apologize, but I don\'t have access to real-time weather data. In a fully developed version, I would connect to a weather API to provide you with accurate forecasts.';
+        } else if (lowercaseMessage.includes('time')) {
+          const now = new Date();
+          return `The current time is ${now.toLocaleTimeString()}.`;
+        } else if (lowercaseMessage.includes('name')) {
+          return 'I am JARVIS, your virtual assistant. I can help you with tasks, answer questions, and provide information on various topics.';
+        } else if (lowercaseMessage.includes('thank')) {
+          return 'You\'re welcome! Is there anything else I can help you with?';
+        } else if (lowercaseMessage.includes('help')) {
+          return `I can help you with various tasks and answer questions on different topics. Try these commands:
 - "Add task [description]" - Create a new task
 - "List tasks" - Show all your tasks
 - "Complete task [number or name]" - Mark a task as complete
+- Ask me general knowledge questions like "What is JavaScript?" or "Who is Albert Einstein?"
 - Ask me about the time, weather, or just chat with me!`;
-      } else {
-        return "I understand your message. If you'd like to manage tasks, try saying 'Add task', 'List tasks', or 'Complete task'. You can also ask for 'help' to see what I can do.";
+        } else {
+          // For questions not in our knowledge base, provide a more generic AI-like response
+          return `I understand you're asking about "${message}". In a production environment, I would connect to a knowledge source or LLM API to give you a comprehensive answer. For now, I'm responding with this placeholder. You can try asking about JavaScript, React, Albert Einstein, AI, capitals of countries, or request "help" to see what else I can do.`;
+        }
       }
       
     } catch (error) {

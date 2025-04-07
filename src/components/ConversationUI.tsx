@@ -145,15 +145,16 @@ const ConversationUI: React.FC = () => {
               <div className="space-y-2">
                 <h3 className="text-lg font-medium">Welcome to JARVIS</h3>
                 <p className="text-muted-foreground mb-4">
-                  How can I assist you today?
+                  I can help you manage tasks and answer your questions.
                 </p>
                 <div className="space-y-2 text-sm text-left bg-black/20 p-4 rounded-md mx-auto max-w-md">
-                  <p className="font-medium">Try these task commands:</p>
+                  <p className="font-medium">Try asking me:</p>
                   <ul className="list-disc pl-5 space-y-1">
+                    <li>"What is artificial intelligence?"</li>
+                    <li>"What is the capital of France?"</li>
+                    <li>"Who is Albert Einstein?"</li>
                     <li>"Add task Buy groceries"</li>
                     <li>"List tasks"</li>
-                    <li>"Complete task 1"</li>
-                    <li>"Help"</li>
                   </ul>
                 </div>
               </div>
@@ -202,7 +203,7 @@ const ConversationUI: React.FC = () => {
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message or task command..."
+              placeholder="Ask me anything or enter a task command..."
               className="flex-1 bg-jarvis-navy/50 border-jarvis-navy focus-visible:ring-jarvis-teal"
               disabled={isListening || isProcessing}
             />
