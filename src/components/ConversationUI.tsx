@@ -145,14 +145,14 @@ const ConversationUI: React.FC = () => {
               <div className="space-y-2">
                 <h3 className="text-lg font-medium">Welcome to JARVIS</h3>
                 <p className="text-muted-foreground mb-4">
-                  I can help you manage tasks and answer your questions.
+                  I can help you manage tasks and answer your questions using web search.
                 </p>
                 <div className="space-y-2 text-sm text-left bg-black/20 p-4 rounded-md mx-auto max-w-md">
                   <p className="font-medium">Try asking me:</p>
                   <ul className="list-disc pl-5 space-y-1">
-                    <li>"What is artificial intelligence?"</li>
-                    <li>"What is the capital of France?"</li>
-                    <li>"Who is Albert Einstein?"</li>
+                    <li>"What is the latest news about artificial intelligence?"</li>
+                    <li>"Tell me about quantum computing"</li>
+                    <li>"Who won the last World Cup?"</li>
                     <li>"Add task Buy groceries"</li>
                     <li>"List tasks"</li>
                   </ul>

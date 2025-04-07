@@ -1,5 +1,6 @@
 
 import { useState, useCallback } from 'react';
+import { searchGoogle, formatSearchResults } from '@/utils/search-utils';
 
 // Define types for tasks
 interface Task {
@@ -106,13 +107,11 @@ export function useProcessMessage() {
           }
         }
         
-        // General conversational responses
+        // General conversational responses for common phrases
         if (lowercaseMessage.includes('hello') || lowercaseMessage.includes('hi')) {
           return 'Hello! How can I assist you today? Feel free to ask me any questions or request help with your tasks.';
         } else if (lowercaseMessage.includes('how are you')) {
           return 'I am functioning optimally. Thank you for asking. How can I assist you today?';
-        } else if (lowercaseMessage.includes('weather')) {
-          return 'I apologize, but I don\'t have access to real-time weather data. In a fully developed version, I would connect to a weather API to provide you with accurate forecasts.';
         } else if (lowercaseMessage.includes('time')) {
           const now = new Date();
           return `The current time is ${now.toLocaleTimeString()}.`;
@@ -125,11 +124,18 @@ export function useProcessMessage() {
 - "Add task [description]" - Create a new task
 - "List tasks" - Show all your tasks
 - "Complete task [number or name]" - Mark a task as complete
-- Ask me general knowledge questions like "What is JavaScript?" or "Who is Albert Einstein?"
-- Ask me about the time, weather, or just chat with me!`;
+- Ask me any question and I'll search the web for answers
+- Ask me about the time or just chat with me!`;
         } else {
-          // For questions not in our knowledge base, provide a more generic AI-like response
-          return `I understand you're asking about "${message}". In a production environment, I would connect to a knowledge source or LLM API to give you a comprehensive answer. For now, I'm responding with this placeholder. You can try asking about JavaScript, React, Albert Einstein, AI, capitals of countries, or request "help" to see what else I can do.`;
+          // For questions not in our knowledge base, search Google
+          console.log("Searching Google for:", message);
+          try {
+            const searchResults = await searchGoogle(message);
+            return formatSearchResults(searchResults);
+          } catch (error) {
+            console.error("Error during search:", error);
+            return "I encountered an error while searching for information. In a production environment, this would connect to Google for real-time answers.";
+          }
         }
       }
       
