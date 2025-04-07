@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, MicOff, Volume2, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -145,14 +146,15 @@ const ConversationUI: React.FC = () => {
               <div className="space-y-2">
                 <h3 className="text-lg font-medium">Welcome to JARVIS</h3>
                 <p className="text-muted-foreground mb-4">
-                  I can help you manage tasks and answer your questions using web search.
+                  I can help you manage tasks and answer your questions using Wikipedia and web search.
                 </p>
                 <div className="space-y-2 text-sm text-left bg-black/20 p-4 rounded-md mx-auto max-w-md">
                   <p className="font-medium">Try asking me:</p>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>"What is the latest news about artificial intelligence?"</li>
                     <li>"Tell me about quantum computing"</li>
-                    <li>"Who won the last World Cup?"</li>
+                    <li>"Who is Marie Curie?"</li>
+                    <li>"What happened during the Apollo 11 mission?"</li>
                     <li>"Add task Buy groceries"</li>
                     <li>"List tasks"</li>
                   </ul>

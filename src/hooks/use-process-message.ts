@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { searchGoogle, formatSearchResults } from '@/utils/search-utils';
+import { searchWeb, formatSearchResults } from '@/utils/search-utils';
 
 // Define types for tasks
 interface Task {
@@ -127,14 +127,14 @@ export function useProcessMessage() {
 - Ask me any question and I'll search the web for answers
 - Ask me about the time or just chat with me!`;
         } else {
-          // For questions not in our knowledge base, search Google
-          console.log("Searching Google for:", message);
+          // For questions not in our knowledge base, search the web
+          console.log("Searching web for:", message);
           try {
-            const searchResults = await searchGoogle(message);
+            const searchResults = await searchWeb(message);
             return formatSearchResults(searchResults);
           } catch (error) {
             console.error("Error during search:", error);
-            return "I encountered an error while searching for information. In a production environment, this would connect to Google for real-time answers.";
+            return "I encountered an error while searching for information. Please try again with a different query.";
           }
         }
       }
