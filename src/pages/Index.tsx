@@ -12,7 +12,7 @@ const Index = () => {
     <div className="min-h-screen flex flex-col p-4">
       <header className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-xl font-bold text-jarvis-teal">JARVIS</h1>
+          <h1 className="text-xl font-bold text-jarvis-teal">KIYA</h1>
           <p className="text-xs text-muted-foreground">Virtual Assistant</p>
         </div>
         <div className="flex space-x-2">
@@ -44,7 +44,7 @@ const Index = () => {
       <DiagnosticInfo />
       
       <footer className="mt-6 text-center text-xs text-muted-foreground">
-        <p>JARVIS Virtual Assistant - Prototype v0.2</p>
+        <p>KIYA Virtual Assistant - Prototype v0.3</p>
       </footer>
     </div>
   );

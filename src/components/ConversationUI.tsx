@@ -1,14 +1,15 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, MicOff, Volume2, Trash2, X } from "lucide-react";
+import { Send, Mic, MicOff, Volume2, VolumeX, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import JarvisAvatar from './JarvisAvatar';
+import KiyaAvatar from './KiyaAvatar';
 import { useChatStore } from '@/stores/chat-store';
 import { useProcessMessage } from '@/hooks/use-process-message';
+import { useSpeech } from '@/hooks/use-speech';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,10 +31,10 @@ interface Message {
 const ConversationUI: React.FC = () => {
   const { messages, addMessage, deleteMessage, clearMessages } = useChatStore();
   const { processMessage, isProcessing } = useProcessMessage();
+  const { speak, stopSpeaking, isSpeaking, toggleMute, isMuted } = useSpeech();
   
   const [input, setInput] = useState<string>('');
   const [isListening, setIsListening] = useState<boolean>(false);
-  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -73,8 +74,11 @@ const ConversationUI: React.FC = () => {
       };
       
       addMessage(assistantMessage);
-      setIsSpeaking(true);
-      setTimeout(() => setIsSpeaking(false), 3000);
+      
+      // Speak the response
+      if (!isMuted) {
+        speak(assistantMessage.content);
+      }
       
     } catch (error) {
       console.error('Error processing message:', error);
@@ -91,14 +95,56 @@ const ConversationUI: React.FC = () => {
       setIsListening(false);
     } else {
       setIsListening(true);
-      toast({
-        title: "Listening",
-        description: "Voice input is not fully implemented in this version",
-      });
-      setTimeout(() => {
+      
+      // Check if browser supports SpeechRecognition
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'en-US';
+        
+        recognition.onstart = () => {
+          toast({
+            title: "Listening",
+            description: "Say something...",
+          });
+        };
+        
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          setInput(transcript);
+          setIsListening(false);
+          
+          // Auto-submit after short delay
+          setTimeout(() => {
+            inputRef.current?.form?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+          }, 500);
+        };
+        
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error', event.error);
+          setIsListening(false);
+          toast({
+            title: "Error",
+            description: `Couldn't recognize speech: ${event.error}`,
+            variant: "destructive",
+          });
+        };
+        
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+        
+        recognition.start();
+      } else {
+        toast({
+          title: "Not supported",
+          description: "Speech recognition is not supported in this browser",
+          variant: "destructive",
+        });
         setIsListening(false);
-        inputRef.current?.focus();
-      }, 3000);
+      }
     }
   };
 
@@ -107,6 +153,7 @@ const ConversationUI: React.FC = () => {
   };
 
   const confirmClearConversation = () => {
+    stopSpeaking();  // Stop any ongoing speech
     clearMessages();
     setIsAlertOpen(false);
     toast({
@@ -118,33 +165,44 @@ const ConversationUI: React.FC = () => {
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto w-full">
       <div className="py-6 text-center">
-        <JarvisAvatar 
+        <KiyaAvatar 
           isActive={true}
           isListening={isListening}
           isProcessing={isProcessing}
           isSpeaking={isSpeaking}
         />
-        <h1 className="text-2xl font-bold mt-4 text-white">JARVIS</h1>
+        <h1 className="text-2xl font-bold mt-4 text-white">KIYA</h1>
         <p className="text-muted-foreground">Your AI Assistant</p>
       </div>
       
       <Card className="flex-1 overflow-hidden flex flex-col bg-black/20 backdrop-blur-sm border-jarvis-navy relative">
         {messages.length > 0 && (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="absolute right-4 top-4 text-xs flex gap-1 items-center"
-            onClick={handleClearConversation}
-          >
-            <Trash2 className="h-3 w-3" /> Clear conversation
-          </Button>
+          <div className="absolute right-4 top-4 flex gap-2">
+            <Button 
+              variant="outline" 
+              size="icon"
+              className="h-8 w-8"
+              onClick={toggleMute}
+              title={isMuted ? "Unmute" : "Mute"}
+            >
+              {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs flex gap-1 items-center h-8"
+              onClick={handleClearConversation}
+            >
+              <Trash2 className="h-3 w-3" /> Clear
+            </Button>
+          </div>
         )}
         
         <div className="flex-1 overflow-y-auto p-4 pt-12">
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center text-center">
               <div className="space-y-2">
-                <h3 className="text-lg font-medium">Welcome to JARVIS</h3>
+                <h3 className="text-lg font-medium">Welcome to KIYA</h3>
                 <p className="text-muted-foreground mb-4">
                   I can help you manage tasks and answer your questions using Wikipedia and web search.
                 </p>

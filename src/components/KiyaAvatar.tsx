@@ -2,14 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { CircleUser } from "lucide-react";
 
-interface JarvisAvatarProps {
+interface KiyaAvatarProps {
   isActive: boolean;
   isListening: boolean;
   isProcessing: boolean;
   isSpeaking: boolean;
 }
 
-const JarvisAvatar: React.FC<JarvisAvatarProps> = ({ 
+const KiyaAvatar: React.FC<KiyaAvatarProps> = ({ 
   isActive, 
   isListening, 
   isProcessing, 
@@ -60,4 +60,4 @@ const VoiceWave: React.FC = () => {
   );
 };
 
-export default JarvisAvatar;
+export default KiyaAvatar;

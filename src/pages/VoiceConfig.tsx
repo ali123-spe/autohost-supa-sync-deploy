@@ -23,9 +23,13 @@ const VoiceConfig = () => {
   };
 
   const handleTestVoice = () => {
+    // We can now use the native browser speech synthesis
+    const utterance = new SpeechSynthesisUtterance("Hello, I am KIYA, your AI assistant. How can I help you today?");
+    speechSynthesis.speak(utterance);
+    
     toast({
       title: "Voice Test",
-      description: "This feature will be available after connecting to ElevenLabs API.",
+      description: "Testing voice output using browser speech synthesis.",
     });
   };
 
@@ -38,7 +42,7 @@ const VoiceConfig = () => {
           <CardHeader>
             <CardTitle>API Keys</CardTitle>
             <CardDescription>
-              Configure your voice API connections for JARVIS
+              Configure your voice API connections for KIYA
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -53,7 +57,7 @@ const VoiceConfig = () => {
                 className="bg-jarvis-navy/50 border-jarvis-navy"
               />
               <p className="text-xs text-muted-foreground">
-                Used for text-to-speech generation
+                Used for enhanced text-to-speech generation
               </p>
             </div>
             
@@ -68,7 +72,7 @@ const VoiceConfig = () => {
                 className="bg-jarvis-navy/50 border-jarvis-navy"
               />
               <p className="text-xs text-muted-foreground">
-                Used for speech-to-text with Whisper API
+                Used for enhanced speech-to-text with Whisper API
               </p>
             </div>
           </CardContent>
@@ -83,7 +87,7 @@ const VoiceConfig = () => {
           <CardHeader>
             <CardTitle>Voice Settings</CardTitle>
             <CardDescription>
-              Customize JARVIS voice behavior
+              Customize KIYA voice behavior
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -92,7 +96,7 @@ const VoiceConfig = () => {
                 <div className="space-y-0.5">
                   <Label htmlFor="voice-volume">Voice Volume</Label>
                   <p className="text-xs text-muted-foreground">
-                    Adjust the output volume of JARVIS voice
+                    Adjust the output volume of KIYA voice
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -113,7 +117,7 @@ const VoiceConfig = () => {
                 <div className="space-y-0.5">
                   <Label>Auto Listening Mode</Label>
                   <p className="text-xs text-muted-foreground">
-                    JARVIS will automatically listen for commands
+                    KIYA will automatically listen for commands
                   </p>
                 </div>
                 <Switch
@@ -135,8 +139,8 @@ const VoiceConfig = () => {
       </div>
       
       <div className="mt-8 text-center text-sm text-muted-foreground">
-        <p>Voice features require valid API keys to function.</p>
-        <p>These settings will be saved in your Supabase backend once connected.</p>
+        <p>Voice features are now available using your browser's built-in speech synthesis.</p>
+        <p>For premium voice features, provide valid API keys to connect to ElevenLabs.</p>
       </div>
     </div>
   );
