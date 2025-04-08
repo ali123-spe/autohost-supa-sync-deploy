@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, MicOff, Volume2, VolumeX, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import KiyaAvatar from './KiyaAvatar';
 import { useChatStore } from '@/stores/chat-store';
 import { useProcessMessage } from '@/hooks/use-process-message';
 import { useSpeech } from '@/hooks/use-speech';
+import { getStoredApiKey } from '@/utils/openai-utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,9 +36,15 @@ const ConversationUI: React.FC = () => {
   const [input, setInput] = useState<string>('');
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
+  const [hasApiKey, setHasApiKey] = useState<boolean>(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  useEffect(() => {
+    const apiKey = getStoredApiKey();
+    setHasApiKey(!!apiKey);
+  }, []);
   
   useEffect(() => {
     scrollToBottom();
@@ -204,7 +210,11 @@ const ConversationUI: React.FC = () => {
               <div className="space-y-2">
                 <h3 className="text-lg font-medium">Welcome to KIYA</h3>
                 <p className="text-muted-foreground mb-4">
-                  I can help you manage tasks and answer your questions using Wikipedia and web search.
+                  {hasApiKey ? (
+                    "I can help you with advanced questions and tasks using OpenAI's GPT model."
+                  ) : (
+                    "I can help you manage tasks and answer your questions using Wikipedia and web search."
+                  )}
                 </p>
                 <div className="space-y-2 text-sm text-left bg-black/20 p-4 rounded-md mx-auto max-w-md">
                   <p className="font-medium">Try asking me:</p>
@@ -217,6 +227,12 @@ const ConversationUI: React.FC = () => {
                     <li>"List tasks"</li>
                   </ul>
                 </div>
+                {!hasApiKey && (
+                  <div className="mt-4 p-4 border border-dashed border-jarvis-navy rounded-lg text-sm">
+                    <p className="font-medium text-jarvis-teal mb-1">💡 Pro tip:</p>
+                    <p>Add your OpenAI API key in Settings to enable advanced AI capabilities.</p>
+                  </div>
+                )}
               </div>
             </div>
           ) : (

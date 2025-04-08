@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -13,15 +13,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { saveApiKey, getStoredApiKey, clearApiKey } from '@/utils/openai-utils';
 
 const SettingsForm: React.FC = () => {
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [voiceModel, setVoiceModel] = useState("default");
   const [voiceSpeed, setVoiceSpeed] = useState([1.0]);
   const [apiKey, setApiKey] = useState("");
+  const [openaiKey, setOpenaiKey] = useState("");
+  
+  useEffect(() => {
+    // Load saved OpenAI API key on component mount
+    const savedKey = getStoredApiKey();
+    if (savedKey) {
+      setOpenaiKey(savedKey);
+    }
+  }, []);
   
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Save OpenAI API Key if provided
+    if (openaiKey.trim()) {
+      saveApiKey(openaiKey.trim());
+    }
     
     // In a real app, these would be saved to a settings store or backend
     toast({
@@ -30,12 +45,17 @@ const SettingsForm: React.FC = () => {
     });
   };
   
+  const handleClearApiKey = () => {
+    clearApiKey();
+    setOpenaiKey("");
+  };
+  
   return (
     <div className="max-w-4xl mx-auto w-full space-y-6">
       <div className="bg-black/20 backdrop-blur-sm p-6 rounded-lg border border-jarvis-navy">
         <h2 className="text-xl font-bold mb-4">System Configuration</h2>
         <p className="text-muted-foreground mb-6">
-          Configure JARVIS settings. Some features require external API connections.
+          Configure KIYA settings. Some features require external API connections.
           Connect to Supabase and GitHub to enable full capabilities.
         </p>
         
@@ -110,14 +130,36 @@ const SettingsForm: React.FC = () => {
             </div>
             
             <div className="p-4 border border-dashed border-jarvis-navy rounded-md">
-              <h3 className="font-medium mb-4">NLP Configuration</h3>
+              <h3 className="font-medium mb-4">OpenAI Integration</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Advanced natural language processing capabilities will be enabled after connecting to backend services.
+                Connect KIYA to OpenAI's GPT models for enhanced intelligence and capabilities.
               </p>
               
-              <Button variant="outline" disabled className="w-full">
-                Configure NLP (Coming Soon)
-              </Button>
+              <div className="space-y-2">
+                <Label htmlFor="openai-key">OpenAI API Key</Label>
+                <Input
+                  id="openai-key"
+                  type="password"
+                  placeholder="Enter your OpenAI API key"
+                  value={openaiKey}
+                  onChange={(e) => setOpenaiKey(e.target.value)}
+                  className="bg-jarvis-navy/50 border-jarvis-navy"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Required for advanced AI capabilities. Your API key is stored locally in your browser.
+                </p>
+                {openaiKey && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleClearApiKey}
+                    className="mt-2"
+                  >
+                    Clear API Key
+                  </Button>
+                )}
+              </div>
             </div>
             
             <div className="p-4 border border-dashed border-jarvis-navy rounded-md">

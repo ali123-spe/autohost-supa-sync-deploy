@@ -1,6 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { searchWeb, formatSearchResults } from '@/utils/search-utils';
+import { askOpenAI, getStoredApiKey } from '@/utils/openai-utils';
 
 // Define types for tasks
 interface Task {
@@ -40,9 +41,6 @@ export function useProcessMessage() {
     
     try {
       console.log('Processing message:', message);
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
       
       const lowercaseMessage = message.toLowerCase().trim();
       
@@ -116,7 +114,7 @@ export function useProcessMessage() {
           const now = new Date();
           return `The current time is ${now.toLocaleTimeString()}.`;
         } else if (lowercaseMessage.includes('name')) {
-          return 'I am JARVIS, your virtual assistant. I can help you with tasks, answer questions, and provide information on various topics.';
+          return 'I am KIYA, your virtual assistant. I can help you with tasks, answer questions, and provide information on various topics.';
         } else if (lowercaseMessage.includes('thank')) {
           return 'You\'re welcome! Is there anything else I can help you with?';
         } else if (lowercaseMessage.includes('help')) {
@@ -124,11 +122,28 @@ export function useProcessMessage() {
 - "Add task [description]" - Create a new task
 - "List tasks" - Show all your tasks
 - "Complete task [number or name]" - Mark a task as complete
-- Ask me any question and I'll search the web for answers
+- Ask me any question and I'll search the web for answers or use my built-in knowledge
 - Ask me about the time or just chat with me!`;
+        } 
+        
+        // Try to use OpenAI if API key is available
+        const apiKey = getStoredApiKey();
+        if (apiKey) {
+          try {
+            console.log("Contacting OpenAI for:", message);
+            const response = await askOpenAI([{role: 'user', content: message}]);
+            return response;
+          } catch (openAiError) {
+            console.error("OpenAI error:", openAiError);
+            
+            // Fallback to web search if OpenAI fails
+            console.log("Falling back to web search for:", message);
+            const searchResults = await searchWeb(message);
+            return formatSearchResults(searchResults);
+          }
         } else {
-          // For questions not in our knowledge base, search the web
-          console.log("Searching web for:", message);
+          // For questions without an OpenAI API key, search the web
+          console.log("No API key, searching web for:", message);
           try {
             const searchResults = await searchWeb(message);
             return formatSearchResults(searchResults);
