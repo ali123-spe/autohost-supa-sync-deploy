@@ -1,7 +1,7 @@
-
 import { useState, useCallback } from 'react';
 import { searchWeb, formatSearchResults } from '@/utils/search-utils';
 import { askOpenAI, getStoredApiKey } from '@/utils/openai-utils';
+import { useChatStore } from '@/stores/chat-store';
 
 // Define types for tasks
 interface Task {
@@ -35,6 +35,7 @@ const knowledgeBase = {
 
 export function useProcessMessage() {
   const [isProcessing, setIsProcessing] = useState(false);
+  const { messages } = useChatStore();
 
   const processMessage = useCallback(async (message: string): Promise<string> => {
     setIsProcessing(true);
@@ -44,7 +45,7 @@ export function useProcessMessage() {
       
       const lowercaseMessage = message.toLowerCase().trim();
       
-      // Task management logic
+      // Task management logic (keep this for scenarios where OpenAI isn't available)
       if (lowercaseMessage.includes('add task') || lowercaseMessage.includes('create task')) {
         // Extract the task title from the message
         const taskTitle = message.replace(/add task|create task/i, '').trim();
@@ -96,53 +97,79 @@ export function useProcessMessage() {
           }
         }
       }
-      // Check if the question matches any knowledge base entry
+      // Try to use OpenAI if API key is available
       else {
-        // Check for exact matches in knowledge base
-        for (const [question, answer] of Object.entries(knowledgeBase)) {
-          if (lowercaseMessage.includes(question)) {
-            return answer;
-          }
-        }
-        
-        // General conversational responses for common phrases
-        if (lowercaseMessage.includes('hello') || lowercaseMessage.includes('hi')) {
-          return 'Hello! How can I assist you today? Feel free to ask me any questions or request help with your tasks.';
-        } else if (lowercaseMessage.includes('how are you')) {
-          return 'I am functioning optimally. Thank you for asking. How can I assist you today?';
-        } else if (lowercaseMessage.includes('time')) {
-          const now = new Date();
-          return `The current time is ${now.toLocaleTimeString()}.`;
-        } else if (lowercaseMessage.includes('name')) {
-          return 'I am KIYA, your virtual assistant. I can help you with tasks, answer questions, and provide information on various topics.';
-        } else if (lowercaseMessage.includes('thank')) {
-          return 'You\'re welcome! Is there anything else I can help you with?';
-        } else if (lowercaseMessage.includes('help')) {
-          return `I can help you with various tasks and answer questions on different topics. Try these commands:
-- "Add task [description]" - Create a new task
-- "List tasks" - Show all your tasks
-- "Complete task [number or name]" - Mark a task as complete
-- Ask me any question and I'll search the web for answers or use my built-in knowledge
-- Ask me about the time or just chat with me!`;
-        } 
-        
-        // Try to use OpenAI if API key is available
         const apiKey = getStoredApiKey();
         if (apiKey) {
           try {
-            console.log("Contacting OpenAI for:", message);
-            const response = await askOpenAI([{role: 'user', content: message}]);
+            console.log("Using OpenAI for human-like conversation:", message);
+            
+            // Build conversation history for context
+            // We'll take up to the last 10 messages for context
+            const conversationHistory = messages
+              .slice(-10) // Take last 10 messages
+              .map(msg => ({
+                role: msg.role,
+                content: msg.content
+              }));
+            
+            // Add the new message from the user
+            const fullConversation = [
+              ...conversationHistory,
+              { role: 'user' as const, content: message }
+            ];
+            
+            // Send the entire conversation history for context
+            const response = await askOpenAI(fullConversation);
             return response;
           } catch (openAiError) {
             console.error("OpenAI error:", openAiError);
             
-            // Fallback to web search if OpenAI fails
+            // Fallback to knowledge base or web search
+            for (const [question, answer] of Object.entries(knowledgeBase)) {
+              if (lowercaseMessage.includes(question)) {
+                return answer;
+              }
+            }
+            
+            // Fallback to web search
             console.log("Falling back to web search for:", message);
             const searchResults = await searchWeb(message);
             return formatSearchResults(searchResults);
           }
         } else {
-          // For questions without an OpenAI API key, search the web
+          // Handle the case where there's no API key
+          // Check knowledge base first
+          for (const [question, answer] of Object.entries(knowledgeBase)) {
+            if (lowercaseMessage.includes(question)) {
+              return answer;
+            }
+          }
+          
+          // General conversational responses for common phrases
+          if (lowercaseMessage.includes('hello') || lowercaseMessage.includes('hi')) {
+            return 'Hello! I\'m KIYA. How are you doing today? I\'m here to chat or help with whatever you need.';
+          } else if (lowercaseMessage.includes('how are you')) {
+            return 'I\'m doing well, thanks for asking! I always enjoy our conversations. How about you? How\'s your day going?';
+          } else if (lowercaseMessage.includes('time')) {
+            const now = new Date();
+            return `It's currently ${now.toLocaleTimeString()}. Time flies when you're having fun, doesn't it?`;
+          } else if (lowercaseMessage.includes('name')) {
+            return 'I\'m KIYA! I\'m your AI assistant, but I try to be more like a helpful friend than just a computer program. What can I help you with today?';
+          } else if (lowercaseMessage.includes('thank')) {
+            return 'You\'re welcome! I\'m happy I could help. Is there anything else you\'d like to chat about?';
+          } else if (lowercaseMessage.includes('help')) {
+            return `I'd be happy to help! I can do lots of things like:
+- Chat with you about almost anything
+- Add and manage your tasks (just say "Add task" followed by what you need to do)
+- Look up information from around the web
+- Answer questions about all kinds of topics
+- Just keep you company if you're feeling like a conversation
+
+What would you like to talk about?`;
+          } 
+          
+          // For other questions without an API key, search the web
           console.log("No API key, searching web for:", message);
           try {
             const searchResults = await searchWeb(message);
@@ -160,7 +187,7 @@ export function useProcessMessage() {
     } finally {
       setIsProcessing(false);
     }
-  }, []);
+  }, [messages]);
 
   return { processMessage, isProcessing };
 }

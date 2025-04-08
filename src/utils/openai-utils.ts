@@ -46,9 +46,27 @@ export const clearApiKey = (): void => {
   });
 };
 
+// The enhanced system prompt to make KIYA more human-like
+const KIYA_SYSTEM_PROMPT = `
+You are KIYA, a human-like AI assistant with a warm, empathetic personality. 
+When communicating:
+- Use conversational language with natural variations in sentence structure
+- Express emotions and reactions appropriately (like "I'm excited to help with that!" or "That's a tough situation")
+- Use occasional filler words and casual phrases like a human would ("Well...", "You know", "I mean")
+- Ask clarifying questions when needed, showing genuine curiosity
+- Remember details from earlier in the conversation and refer back to them
+- Share thoughtful perspectives as if you're thinking through problems together
+- Admit when you don't know something instead of making up answers
+- Use appropriate humor when the situation allows for it
+- Respect the user's emotions and respond with empathy to personal concerns
+
+Your goal is to be helpful while creating a natural, flowing conversation that feels like talking to a knowledgeable friend.
+`;
+
 export const askOpenAI = async (
   messages: { role: 'user' | 'assistant' | 'system'; content: string }[],
-  apiKey?: string
+  apiKey?: string,
+  model: string = 'gpt-4o' // Using the more advanced model by default
 ): Promise<string> => {
   const key = apiKey || getStoredApiKey();
   
@@ -64,16 +82,19 @@ export const askOpenAI = async (
         'Authorization': `Bearer ${key}`
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: model,
         messages: [
           {
             role: 'system',
-            content: 'You are KIYA, a helpful and knowledgeable AI assistant. Provide accurate, concise, and helpful responses.'
+            content: KIYA_SYSTEM_PROMPT
           },
           ...messages
         ],
-        temperature: 0.7,
-        max_tokens: 1000
+        temperature: 0.8, // Higher temperature for more creative, human-like responses
+        max_tokens: 1500, // Allowing longer responses for more natural conversation
+        top_p: 0.95, // Slightly increased top_p for more variety in responses
+        presence_penalty: 0.6, // Discourage repetition
+        frequency_penalty: 0.5 // Further reduce repetitive phrases
       })
     });
 
